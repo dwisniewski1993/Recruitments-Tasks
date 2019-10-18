@@ -12,12 +12,12 @@ METHODS = ['GET', 'POST', 'PUT', 'DELETE']
 
 
 @app.route('/')
-def handle_request():
+def handle_request() -> render_template:
     return render_template("index.html")
 
 
 @app.route('/api/images', methods=METHODS)
-def get_images():
+def get_images() -> jsonify:
     if request.method == 'GET':
         return jsonify({'images': IMAGES.get_images_list()})
     else:
@@ -25,7 +25,7 @@ def get_images():
 
 
 @app.route('/api/images/<int:image_id>', methods=METHODS)
-def get_image(image_id: int):
+def get_image(image_id: int) -> jsonify:
     if request.method == 'GET':
         image = [image for image in IMAGES.get_images_list() if image['id'] == image_id]
         if len(image) == 0:
@@ -51,7 +51,7 @@ def get_image(image_id: int):
 
 
 @app.route('/api/upload', methods=METHODS)
-def upload_image():
+def upload_image() -> jsonify:
     if request.method == 'POST':
         file = request.files['file']
         name = file.filename
@@ -80,7 +80,7 @@ def upload_image():
 
 
 @app.errorhandler(404)
-def not_found(error):
+def not_found(error) -> make_response:
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 

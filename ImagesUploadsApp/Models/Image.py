@@ -13,7 +13,7 @@ class Images:
         self.working_directory = f"{main_dir}\\Images"
         files = self.get_files(self.working_directory)
         self.images_list = [Image(index=int(file.split('\\')[-1].split('_')[0]),
-                                  file_name=file.split('\\')[-1].split('_')[1:],
+                                  file_name=file.split('\\')[-1].split('_')[1:][0],
                                   path=file) for file in files if file.split('.')[-1] != 'py']
         self.cur_id = max([int(file.split('\\')[-1].split('_')[0]) for file in files if file.split('.')[-1] != 'py'])
 
