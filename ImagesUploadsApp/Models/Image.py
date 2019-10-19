@@ -15,7 +15,11 @@ class Images:
         self.images_list = [Image(index=int(file.split('\\')[-1].split('_')[0]),
                                   file_name=file.split('\\')[-1].split('_')[1:][0],
                                   path=file) for file in files if file.split('.')[-1] != 'py']
-        self.cur_id = max([int(file.split('\\')[-1].split('_')[0]) for file in files if file.split('.')[-1] != 'py'])
+        ids_list = [int(file.split('\\')[-1].split('_')[0]) for file in files if file.split('.')[-1] != 'py']
+        if len(ids_list) == 0:
+            self.cur_id = 0
+        else:
+            self.cur_id = max(ids_list)
 
     @staticmethod
     def get_files(path: str) -> list:
