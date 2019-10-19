@@ -1,10 +1,13 @@
 import os
 
+from PIL import Image as PImage
+
 
 class Image:
     def __init__(self, index: int, file_name: str, path: str) -> None:
         self.id = index
         self.name = file_name
+        self.image = PImage.open(path)
         self.path = path
 
 
