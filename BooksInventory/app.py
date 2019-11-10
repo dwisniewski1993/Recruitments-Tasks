@@ -1,20 +1,20 @@
 from flask import render_template, request, redirect, url_for
 
 from PartOne.models import Book
-from PartOne.utils import initialize_database
-from config import APP, DATABASE
+from config import APP
+from utils import initialize_database, save_books_to_db, import_books, add_book_to_db
 
 initialize_database()
 
 
 # First Part
 @APP.route('/')
-def all_books():
+def all_books() -> render_template:
     return render_template('part_one_first.html', books=Book.query.all())
 
 
 @APP.route('/results', methods=['POST'])
-def searched_books():
+def searched_books() -> render_template:
     search_string = request.form['searchCondition']
     title_contains_books = Book.query.filter(Book.title.contains(search_string))
     authors_contains_books = Book.query.filter(Book.authors.contains(search_string))
@@ -24,37 +24,44 @@ def searched_books():
 
 
 @APP.route('/add')
-def add_book_form():
+def add_book_form() -> render_template:
     return render_template('part_one_third.html')
 
 
 @APP.route('/adding', methods=['POST'])
-def adding_book():
+def adding_book() -> redirect:
     if request.method == 'POST':
-        title = request.form['title']
-        authors = ";\n".join(request.form['authors'].split(';'))
-        published_date = request.form['publishedDate']
+        book = request.form
+        add_book_to_db(book=book)
 
-        industry_identifiers = request.form['industryIdentifiers']
-        single_identifiers = industry_identifiers.split(';')
-        industry_identifiers = ";\n".join([f"{i.split(',')[0]}({i.split(',')[1]})\n" for i in single_identifiers])
+        return redirect(url_for('all_books'), 302)
 
-        page_count = request.form['pageCount']
-        links = ";\n".join(request.form['links'].split(','))
-        languages = ";\n".join(request.form['languages'].split(','))
 
-        book = Book(title=title,
-                    authors=authors,
-                    publishedDate=published_date,
-                    industryIdentifiers=industry_identifiers,
-                    pageCount=page_count,
-                    imageLinks=links,
-                    language=languages
-                    )
+# Part two
+@APP.route('/import')
+def import_form() -> render_template:
+    return render_template('part_two.html')
 
-        DATABASE.session.add(book)
-        DATABASE.session.commit()
 
+@APP.route('/importing', methods=['POST'])
+def importing() -> redirect:
+    if request.method == 'POST':
+        results = request.form
+        value = results['value']
+        url = ""
+
+        if 'condition' not in results:
+            url = f"https://www.googleapis.com/books/v1/volumes?q={value}"
+        elif results['condition'] == 'title':
+            url = f"https://www.googleapis.com/books/v1/volumes?q={value}+intitle"
+        elif results['condition'] == 'author':
+            url = f"https://www.googleapis.com/books/v1/volumes?q={value}+inauthor"
+        elif results['condition'] == 'publisher':
+            url = f"https://www.googleapis.com/books/v1/volumes?q={value}+inpublisher"
+        elif results['condition'] == 'subject':
+            url = f"https://www.googleapis.com/books/v1/volumes?q={value}+subject"
+
+        save_books_to_db(import_books(url=url))
         return redirect(url_for('all_books'), 302)
 
 
