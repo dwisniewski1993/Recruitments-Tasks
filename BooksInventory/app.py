@@ -23,6 +23,15 @@ def searched_books() -> render_template:
                            .union_all(language_contains_books).all())
 
 
+@APP.route('/filtered', methods=['POST'])
+def date_filter() -> render_template:
+    dates = request.form
+    start_time = dates['startTime']
+    stop_time = dates['endTime']
+    date_filtered_books = Book.query.filter(Book.publishedDate <= stop_time).filter(Book.publishedDate >= start_time)
+    return render_template('part_one_fourth.html', books=date_filtered_books)
+
+
 @APP.route('/add')
 def add_book_form() -> render_template:
     return render_template('part_one_third.html')

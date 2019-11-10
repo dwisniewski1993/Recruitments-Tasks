@@ -5,41 +5,15 @@
     <title>Recruitment Task</title>
 </head>
 <body>
-<h1>Search results</h1>
+<h1>Books list</h1>
 
 <div class="search-container">
-    <p>Search in database</p>
-    <form method="POST" action="/results" accesskey="text">
-        <input type="text" placeholder="Search.." name="searchCondition"/>
-        <input type="submit" value="Search"/>
-    </form>
-</div>
-
-<div class="date-search-container">
-    <p>Filter by dates</p>
-    <form method="POST" action="/filtered" accesskey="text">
-        <input type="text" placeholder="Start date" name="startTime"/>
-        <input type="text" , placeholder="End date" name="endTime">
-        <input type="submit" value="Search"/>
-    </form>
-</div>
-
-<div class="adding-container">
-    <p>Adding new book</p>
-    <form action="/add" accesskey="text">
-        <input type="submit" value="Add book">
-    </form>
-</div>
-
-<div class="import-container">
-    <p>Import book from API</p>
-    <form action="/import" accesskey="text">
-        <input type="submit" value="Import book">
+    <form action="/" accesskey="text">
+        <input type="submit" value="Back"/>
     </form>
 </div>
 
 <div>
-    <p>Book list</p>
     <table>
 
         {% block body %}
