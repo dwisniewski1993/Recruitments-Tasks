@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Recruitment Task</title>
+</head>
+<body>
+<h1>Books list</h1>
+
+<div class="search-container">
+    <form action="/" accesskey="text">
+        <input type="submit" value="Back"/>
+    </form>
+</div>
+
+<div>
+    <table>
+
+        {% block body %}
+            <tr>
+                <td>Title</td>
+                <td>Authors</td>
+                <td>Published Date</td>
+                <td>Industry Identifiers</td>
+                <td>Page Count</td>
+                <td>Links</td>
+                <td>Languages</td>
+            </tr>
+
+            {% for book in books %}
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.authors }}</td>
+                    <td>{{ book.publishedDate }}</td>
+                    <td>{{ book.industryIdentifiers }}</td>
+                    <td>{{ book.pageCount }}</td>
+                    <td>{{ book.imageLinks }}</td>
+                    <td>{{ book.language }}</td>
+
+                </tr>
+            {% endfor %}
+
+        {% endblock %}
+    </table>
+</div>
+
+</body>
+</html>
+
