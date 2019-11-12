@@ -5,27 +5,33 @@
     <title>Recruitment Task</title>
 </head>
 <body>
-<h1>Search results</h1>
+<h1>Book Inventory</h1>
 
 <div class="search-container">
-    <p>Search in database</p>
+    <p>Search by keyword</p>
     <form method="POST" action="/results" accesskey="text">
-        <input type="text" placeholder="Search.." name="searchCondition"/>
+        <label>
+            <input type="text" placeholder="Search.." name="searchCondition"/>
+        </label>
         <input type="submit" value="Search"/>
     </form>
 </div>
 
 <div class="date-search-container">
-    <p>Filter by dates</p>
+    <p>Filter by date</p>
     <form method="POST" action="/filtered" accesskey="text">
-        <input type="text" placeholder="Start date" name="startTime"/>
-        <input type="text" , placeholder="End date" name="endTime">
+        <label>
+            <input type="text" placeholder="Start date" name="startTime"/>
+        </label>
+        <label>
+            <input type="text" , placeholder="End date" name="endTime">
+        </label>
         <input type="submit" value="Search"/>
     </form>
 </div>
 
 <div class="adding-container">
-    <p>Adding new book</p>
+    <p>Add new book</p>
     <form action="/add" accesskey="text">
         <input type="submit" value="Add book">
     </form>
