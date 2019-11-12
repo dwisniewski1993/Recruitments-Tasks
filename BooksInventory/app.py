@@ -1,7 +1,7 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, jsonify
 
 from PartOne.models import Book
-from config import APP
+from config import APP, METHODS
 from utils import initialize_database, save_books_to_db, import_books, add_book_to_db
 
 initialize_database()
@@ -72,6 +72,37 @@ def importing() -> redirect:
 
         save_books_to_db(import_books(url=url))
         return redirect(url_for('all_books'), 302)
+
+
+# Part three
+@APP.route('/api/')
+def api() -> render_template:
+    return render_template('api.html')
+
+
+@APP.route('/api/books/', methods=METHODS)
+def api_books() -> jsonify:
+    if request.method == 'GET':
+        option = request.args.get('show_books', 0, type=str)
+        if option == 'all':
+            books = [i.to_dictionary() for i in Book.query.all()]
+            return jsonify(result=books)
+        elif option == 'keyword':
+            keyword = request.args.get('keyword', 0, type=str)
+            title_contains_books = Book.query.filter(Book.title.contains(keyword))
+            authors_contains_books = Book.query.filter(Book.authors.contains(keyword))
+            language_contains_books = Book.query.filter(Book.language.contains(keyword))
+            mass_query = title_contains_books.union_all(authors_contains_books).union_all(language_contains_books).all()
+            books = [i.to_dictionary() for i in mass_query]
+            return jsonify(result=books)
+        elif option == 'date':
+            start_time = request.args.get('start_time', 0, type=str)
+            stop_time = request.args.get('stop_time', 0, type=str)
+            date_fil_books = Book.query.filter(Book.publishedDate <= stop_time).filter(Book.publishedDate >= start_time)
+            books = [i.to_dictionary() for i in date_fil_books]
+            return jsonify(result=books)
+    else:
+        return jsonify(result='Only GET method is supported here')
 
 
 if __name__ == '__main__':

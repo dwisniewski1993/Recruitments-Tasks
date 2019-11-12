@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RestAPI Book Inventory</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type=text/javascript>
+        var result;
+        $(function () {
+            $('a#show_all_books, a#select_by_keyword, a#select_by_date').bind('click', function (event) {
+                var index_value = event.currentTarget.id;
+                var json;
+                if (index_value === 'show_all_books') {
+                    json = {show_books: 'all',}
+                } else if (index_value === 'select_by_keyword') {
+                    json = {
+                        show_books: 'keyword',
+                        keyword: $('input[name="searchCondition"]').val(),
+                    }
+                } else if (index_value === 'select_by_date') {
+                    json = {
+                        show_books: 'date',
+                        start_time: $('input[name="startTime"]').val(),
+                        stop_time: $('input[name="endTime"]').val(),
+                    }
+                }
+                $.getJSON('/api/books/', json,
+                    function (data) {
+                        result = data.result;
+
+                        var myTableDiv = document.getElementById("myDynamicTable");
+                        var table = document.createElement('TABLE');
+                        table.border = '1';
+
+                        var tableBody = document.createElement('TBODY');
+                        table.appendChild(tableBody);
+
+                        var tr_header = document.createElement('TR');
+                        tableBody.appendChild(tr_header);
+
+                        var table_headers = ["Title", "Authors", "Publish Date", "Industry Identifiers", "pageCount",
+                            "imageLinks", "language"];
+
+                        for (var h = 0; h < table_headers.length; h++) {
+                            var header_td = document.createElement('TD');
+                            header_td.appendChild(document.createTextNode(table_headers[h]));
+                            tr_header.appendChild(header_td);
+                        }
+
+                        for (var i = 0; i < result.length; i++) {
+                            var tr = document.createElement('TR');
+                            tableBody.appendChild(tr);
+
+                            var value = result[i];
+                            var values = [value.title, value.authors, value.publisherDate, value.industryIdentifiers,
+                                value.pageCount, value.imageLinks, value.language];
+
+                            for (var j = 0; j < values.length; j++) {
+                                var td = document.createElement('TD');
+                                td.width = '75';
+                                td.appendChild(document.createTextNode(values[j]));
+                                tr.appendChild(td);
+                            }
+                        }
+                        myTableDiv.appendChild(table);
+                        console.log('Table created');
+                    });
+                return false;
+            });
+        });
+    </script>
+
+</head>
+<body>
+
+<div>
+    <h1>Book inventory</h1>
+</div>
+
+<div>
+    <h2>Choose action:</h2>
+    <table>
+        <tr>
+            <td>
+                <div class="all-books-container">
+                    <form>
+                        <a href=# id=show_all_books class="btn">
+                            <button>View all books</button>
+                        </a>
+                    </form>
+                </div>
+            </td>
+            <td>
+                <div class="selected-view">
+                    <form>
+                        <label>
+                            <input type="text" placeholder="Search by keyword" name="searchCondition"/>
+                        </label>
+                        <a href=# id=select_by_keyword class="btn">
+                            <button>Search keyword</button>
+                        </a>
+                    </form>
+                </div>
+            </td>
+            <td>
+                <div class="selected-date">
+                    <form>
+                        <label>
+                            <input type="text" placeholder="Start date" name="startTime"/>
+                        </label>
+                        <label>
+                            <input type="text" placeholder="End date" name="endTime"/>
+                        </label>
+                        <a href=# id=select_by_date class="btn">
+                            <button>Search by dates</button>
+                        </a>
+                    </form>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div>
+        <p id=myDynamicTable>Choose option</p>
+    </div>
+
+
+</div>
+
+</body>
+</html>

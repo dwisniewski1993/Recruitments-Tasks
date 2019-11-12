@@ -11,3 +11,14 @@ class Book(DATABASE.Model):
     pageCount = DATABASE.Column(DATABASE.Integer())
     imageLinks = DATABASE.Column(DATABASE.String(60))
     language = DATABASE.Column(DATABASE.String(60))
+
+    def to_dictionary(self):
+        return dict({
+            'title': self.title,
+            'authors': self.authors,
+            'publisherDate': self.publishedDate,
+            'industryIdentifiers': self.industryIdentifiers,
+            'pageCount': self.pageCount,
+            'imageLinks': self.imageLinks,
+            'language': self.language}
+        )

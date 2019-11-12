@@ -9,3 +9,4 @@ APP = Flask(__name__)
 APP.config["SQLALCHEMY_DATABASE_URI"] = DB
 APP.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 DATABASE = SQLAlchemy(APP)
+METHODS = ['GET', 'POST', 'PUT', 'DELETE']

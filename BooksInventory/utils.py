@@ -32,7 +32,7 @@ def save_books_to_db(books: dict) -> None:
         title = volume["title"]
 
         separator = ";"
-        if "author" in volume:
+        if "authors" in volume:
             authors = separator.join([f"{author}\n" for author in volume["authors"]])
         else:
             authors = ""
