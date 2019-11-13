@@ -98,4 +98,4 @@ def api_books() -> jsonify:
 
 
 if __name__ == '__main__':
-    APP.run()
+    APP.run(threaded=True)
