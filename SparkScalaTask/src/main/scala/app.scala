@@ -17,39 +17,46 @@ object app extends App {
 
   import spark.implicits._
 
+  // Load us cities file to data frame
+  var cities_df: DataFrame = spark.read.format("csv").option("header", "true").load(us_cities_file)
+
   // Making mapping for state name and shortcut
   val replacements_state: scala.collection.Map[String, String] = cities_df.select("state_id", "state_name").rdd
     .map(row => (row.getString(0), row.getString(1))).collectAsMap()
+
   //Making mapping for population in each state
   val population_in_state: scala.collection.Map[String, String] = cities_df.select("state_id", "population")
     .na.drop().withColumn("population", $"population".cast("Int"))
     .groupBy("state_id").sum("population").rdd
     .map(row => (row.getString(0), row.getLong(1).toString)).collectAsMap()
+  cities_df = null
+
   // Load second file to data frame
   val parking_df: DataFrame = spark.read.format("csv").option("header", "true").load(parking_file)
-  cities_df = null
+
   // Defining window partitioner
   val windowSpec = Window.partitionBy("State Name").orderBy("Year-Month")
+
   // Making list with dictionary keys
   val stateIdsSequence = population_in_state.keys.toList
-  // Load us cities file to data frame
-  var cities_df: DataFrame = spark.read.format("csv").option("header", "true").load(us_cities_file)
+
   // Calculate result data frame
   var result: DataFrame = parking_df
-    .select($"Registration State".as("State Name"), $"Issue Date" as ("Year-Month"))
+    .select($"Registration State".as("State Name"), $"Issue Date"as("Year-Month"))
     .withColumn("Year-Month", concat_ws("-", slice(split($"Year-Month", "-"), 1, 2)))
     .groupBy($"State Name", $"Year-Month").count().withColumnRenamed("count", "Ratio")
     .withColumn("helper", $"State Name")
     .na.replace("helper", population_in_state.toMap)
-    .withColumn("Ratio", $"Ratio".cast("Float") / $"helper".cast("Float")).drop("helper")
-    .where($"State Name".isin(stateIdsSequence: _*))
+    .withColumn("Ratio", format_number($"Ratio".cast("Float") / $"helper".cast("Float"), 8)).drop("helper")
+    .where($"State Name".isin(stateIdsSequence:_*))
     .na.replace("State Name", replacements_state.toMap)
     .orderBy(desc("State Name"), asc("Year-Month"))
-    .withColumn("help-100", lit(100))
+    .withColumn("help-100", lit(100.00))
     .withColumn("Difference (%)", $"help-100" - when((lag("Ratio", 1)
-      .over(windowSpec)).isNull, null)
-      .otherwise(when($"Ratio" >= lag("Ratio", 1).over(windowSpec), (lag("Ratio", 1).over(windowSpec) * $"help-100") / $"Ratio")
-        .otherwise($"Ratio" * $"help-100") / lag("Ratio", 1).over(windowSpec))).drop("help-100")
+      .over(windowSpec)).isNull, null).otherwise(when($"Ratio" === lag("Ratio", 1).over(windowSpec), 100.00)
+      .otherwise(when($"Ratio" > lag("Ratio", 1).over(windowSpec), (lag("Ratio", 1).over(windowSpec)*$"help-100")/$"Ratio")
+        .otherwise(($"Ratio"*$"help-100"/lag("Ratio", 1).over(windowSpec)))))).drop("help-100")
+    .withColumn("Difference (%)", when($"Difference (%)".isNull, null).otherwise(format_number($"Difference (%)", 2)))
 
   result.show()
 
