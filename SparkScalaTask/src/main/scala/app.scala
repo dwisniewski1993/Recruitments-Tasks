@@ -58,6 +58,25 @@ object app extends App {
         .otherwise(($"Ratio"*$"help-100"/lag("Ratio", 1).over(windowSpec)))))).drop("help-100")
     .withColumn("Difference (%)", when($"Difference (%)".isNull, null).otherwise(format_number($"Difference (%)", 2)))
 
-  result.show()
+  // Creating connection to database
+  val jdbcHostname = "localhost"
+  val jdbcPort = 3306
+  val jdbcDatabase = "spark_task"
+  val jdbcUsername = "root"
+  val jdbcPassword = ""
+  val jdbcDriver = "com.mysql.jdbc.Driver"
+
+  val jdbcUrl = s"jdbc:mysql://${jdbcHostname}:${jdbcPort}/${jdbcDatabase}"
+
+  import java.util.Properties
+  val connectionProperties = new Properties()
+
+  connectionProperties.put("user", s"${jdbcUsername}")
+  connectionProperties.put("password", s"${jdbcPassword}")
+  connectionProperties.put("jdbcDriver", s"${jdbcDriver}")
+
+  Class.forName(jdbcDriver)
+
+  result.write.jdbc(jdbcUrl, "US_cities_tickets_stats", connectionProperties)
 
 }
